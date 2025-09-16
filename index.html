@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Патологоанатом</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+        }
+
+        textarea {
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Генератор макроскопического описания</h1>
+    <textarea id="clinicalData" rows="10" cols="70" placeholder="Введите клинические данные и данные вскрытия здесь..."></textarea>
+    <button onclick="generateMacro()">Сгенерировать макроописание</button>
+    <h3>Результат:</h3>
+    <textarea id="result" rows="15" cols="70" readonly></textarea>
+
+    <script>
+        async function generateMacro() {
+            const clinicalText = document.getElementById('clinicalData').value;
+            const resultTextarea = document.getElementById('result');
+            resultTextarea.value = "Идет генерация... (Это тест-заглушка)";
+
+            // Имитация работы ИИ для теста
+            setTimeout(() => {
+                // Это ответ, который мы позже получим от ИИ
+                resultTextarea.value = "Макроскопическое описание (образец):\nТруп мужчины правильного телосложения, повышенного питания. Кожные покровы бледные. В области правого бедра — точечная гематома в проекции пункции бедренной артерии. В правой подключичной области — катетер без признаков воспаления. Выраженный отек мягких тканей нижних конечностей.";
+            }, 2000); // Ждем 2 секунды, как будто идет запрос
+        } 
+    </script>
+</body>
+</html>
