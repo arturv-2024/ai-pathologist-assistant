@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Патологоанатом</title>
+    <title>AI РџР°С‚РѕР»РѕРіРѕР°РЅР°С‚РѕРј</title>
     <style>
         body {
             font-family: Arial;
@@ -20,24 +20,45 @@
     </style>
 </head>
 <body>
-    <h1>Генератор макроскопического описания</h1>
-    <textarea id="clinicalData" rows="10" cols="70" placeholder="Введите клинические данные и данные вскрытия здесь..."></textarea>
-    <button onclick="generateMacro()">Сгенерировать макроописание</button>
-    <h3>Результат:</h3>
+    <h1>Р“РµРЅРµСЂР°С‚РѕСЂ РјР°РєСЂРѕСЃРєРѕРїРёС‡РµСЃРєРѕРіРѕ РѕРїРёСЃР°РЅРёСЏ</h1>
+    <textarea id="clinicalData" rows="10" cols="70" placeholder="Р’РІРµРґРёС‚Рµ РєР»РёРЅРёС‡РµСЃРєРёРµ РґР°РЅРЅС‹Рµ Рё РґР°РЅРЅС‹Рµ РІСЃРєСЂС‹С‚РёСЏ Р·РґРµСЃСЊ..."></textarea>
+    <button onclick="generateMacro()">РЎРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РјР°РєСЂРѕРѕРїРёСЃР°РЅРёРµ</button>
+    <h3>Р РµР·СѓР»СЊС‚Р°С‚:</h3>
     <textarea id="result" rows="15" cols="70" readonly></textarea>
 
     <script>
+       // РђРґСЂРµСЃ РІР°С€РµРіРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ РЅР° Vercel (Р—РђРњР•РќРРўР• РЅР° РІР°С€ РґРѕРјРµРЅ!)
+        const YOUR_VERCEL_APP_URL = 'https://ai-pathologist-assistant.vercel.app';
+
         async function generateMacro() {
             const clinicalText = document.getElementById('clinicalData').value;
             const resultTextarea = document.getElementById('result');
-            resultTextarea.value = "Идет генерация... (Это тест-заглушка)";
+            resultTextarea.value = "РРґРµС‚ РіРµРЅРµСЂР°С†РёСЏ...";
 
-            // Имитация работы ИИ для теста
-            setTimeout(() => {
-                // Это ответ, который мы позже получим от ИИ
-                resultTextarea.value = "Макроскопическое описание (образец):\nТруп мужчины правильного телосложения, повышенного питания. Кожные покровы бледные. В области правого бедра — точечная гематома в проекции пункции бедренной артерии. В правой подключичной области — катетер без признаков воспаления. Выраженный отек мягких тканей нижних конечностей.";
-            }, 2000); // Ждем 2 секунды, как будто идет запрос
-        } 
+            try {
+                // 1. РћС‚РїСЂР°РІР»СЏРµРј Р·Р°РїСЂРѕСЃ РЅР° РќРђРЁ СЃРµСЂРІРµСЂ РЅР° Vercel
+                const response = await fetch(YOUR_VERCEL_APP_URL + '/generate-macro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        clinicalData: clinicalText // РџРµСЂРµРґР°РµРј С‚РµРєСЃС‚ РёР· РїРѕР»СЏ РІРІРѕРґР°
+                    })
+                });
+
+                // 2. РџРѕР»СѓС‡Р°РµРј РћРўР’Р•Рў РѕС‚ РЅР°С€РµРіРѕ СЃРµСЂРІРµСЂР°
+                const data = await response.json();
+                // 3. Р”РѕСЃС‚Р°РµРј С‚РµРєСЃС‚ РёР· РѕС‚РІРµС‚Р° Рё РїРѕРєР°Р·С‹РІР°РµРј РµРіРѕ
+                resultTextarea.value = data.result;
+
+            } catch (error) {
+                // Р•СЃР»Рё С‡С‚Рѕ-С‚Рѕ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє, РїРѕРєР°Р¶РµРј РѕС€РёР±РєСѓ
+                resultTextarea.value = "РћС€РёР±РєР°: " + error.message;
+                console.error('РћС€РёР±РєР°:', error);
+            }
+        }
     </script>
 </body>
+
 </html>
