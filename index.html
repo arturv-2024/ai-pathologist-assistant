@@ -37,7 +37,7 @@
 
             try {
                 // 1. Отправляем запрос на НАШ сервер на Vercel
-                const response = await fetch(YOUR_VERCEL_APP_URL + '/generate-macro', {
+               const response = await fetch(YOUR_VERCEL_APP_URL + '/api/generate-macro', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -62,4 +62,5 @@
 </body>
 
 </html>
+
 
