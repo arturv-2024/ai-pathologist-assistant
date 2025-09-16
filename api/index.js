@@ -1,37 +1,29 @@
-// Файл: api.js
+// Файл: api/index.js
 const express = require('express');
 const cors = require('cors');
-const app = express();
 
-// Middleware
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Базовый маршрут для проверки работы сервера
-app.get('/', (req, res) => {
-  res.json({ message: 'Сервер AI Pathologist работает!' });
+// Тестовый маршрут для проверки
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Сервер работает!' });
 });
 
-// Маршрут для генерации макроописания
-app.post('/generate-macro', async (req, res) => {
+// Основной маршрут для генерации
+app.post('/api/generate-macro', async (req, res) => {
   try {
     const { clinicalData } = req.body;
     
-    // Эмуляция ответа ИИ для теста (замените на реальный запрос к DeepSeek когда заработает)
+    // Тестовый ответ (замените на реальный DeepSeek запрос)
     const generatedText = `Макроописание на основе: ${clinicalData}`;
     
     res.json({ result: generatedText });
-
   } catch (error) {
-    console.error('Ошибка:', error);
-    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Обработчик для всех остальных маршрутов
-app.get('*', (req, res) => {
-  res.status(404).json({ error: 'Маршрут не найден' });
-});
-
-// Экспорт приложения для Vercel
+// Экспорт для Vercel
 module.exports = app;
