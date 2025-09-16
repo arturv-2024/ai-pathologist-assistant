@@ -1,34 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AI Патологоанатом</title>
-    <style>
-        body {
-            font-family: Arial;
-            margin: 40px;
-        }
-
-        textarea {
-            display: block;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Генератор макроскопического описания</h1>
-    <textarea id="clinicalData" rows="10" cols="70" placeholder="Введите клинические данные и данные вскрытия здесь..."></textarea>
-    <button onclick="generateMacro()">Сгенерировать макроописание</button>
-    <h3>Результат:</h3>
-    <textarea id="result" rows="15" cols="70" readonly></textarea>
-
     <script>
-       // Адрес вашего приложения на Vercel (ЗАМЕНИТЕ на ваш домен!)
-        const response = await fetch(YOUR_VERCEL_APP_URL + '/api/generate-macro', {
+        // Адрес вашего приложения на Vercel (ЗАМЕНИТЕ на ваш домен!)
+        const YOUR_VERCEL_APP_URL = 'https://ai-pathologist-assistant.vercel.app';
 
         async function generateMacro() {
             const clinicalText = document.getElementById('clinicalData').value;
@@ -37,7 +9,7 @@
 
             try {
                 // 1. Отправляем запрос на НАШ сервер на Vercel
-               const response = await fetch(YOUR_VERCEL_APP_URL + '/api/generate-macro', {
+                const response = await fetch(YOUR_VERCEL_APP_URL + '/generate-macro', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -59,9 +31,3 @@
             }
         }
     </script>
-</body>
-
-</html>
-
-
-
