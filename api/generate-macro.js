@@ -1,15 +1,15 @@
 // Файл: API/generate-macro.js
-// КОД-СКАНЕР: ПРОВЕРЯЕМ ДОСТУПНЫЕ МОДЕЛИ
+// ИСПРАВЛЕННЫЙ СКАНЕР
 
 export const config = {
   runtime: 'edge',
 };
 
 export default async function handler(req) {
-  // Вставь свой ключ (тот самый, новый) внутри кавычек:
+  // Твой ключ (для теста):
   const apiKey = "AIzaSyANwXRki98C7w5ZaV7CoDToEs2biUKK_zE"; 
 
-  // Спрашиваем у Google список всех доступных моделей
+  // Запрашиваем список моделей
   const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
 
   try {
@@ -20,8 +20,11 @@ export default async function handler(req) {
 
     const data = await response.json();
 
-    // Возвращаем чистый список, чтобы увидеть его на экране
-    return new Response(JSON.stringify(data, null, 2), {
+    // ВАЖНО: Превращаем ответ в текст и кладем в поле 'result',
+    // чтобы твой сайт смог это отобразить.
+    const debugText = JSON.stringify(data, null, 2);
+
+    return new Response(JSON.stringify({ result: debugText }), {
       headers: { 'Content-Type': 'application/json' }
     });
 
