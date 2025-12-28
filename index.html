@@ -1,5 +1,89 @@
-ai-pathologist-assistant/
-├── api/
-│   ├── generate-macro.js
-│   └── hello.js
-└── index.html  ← Этот файл ДОЛЖЕН быть здесь!
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Патологоанатом</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #333; }
+        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
+        
+        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
+        textarea { width: 100%; height: 250px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 16px; box-sizing: border-box; resize: vertical; font-family: monospace; }
+        textarea:focus { border-color: #1a73e8; outline: none; }
+        
+        button { width: 100%; padding: 18px; background-color: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: background 0.2s; }
+        button:hover { background-color: #1557b0; }
+        button:disabled { background-color: #a0c1ed; cursor: wait; }
+        
+        #result { margin-top: 30px; white-space: pre-wrap; background: #fafafa; padding: 20px; border: 1px solid #eee; border-radius: 12px; min-height: 100px; font-size: 16px; line-height: 1.6; }
+        .loading { text-align: center; color: #666; margin-top: 15px; display: none; font-style: italic; }
+        .copy-btn { background-color: #34a853; margin-top: 10px; font-size: 14px; padding: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>👨‍⚕️ AI Ассистент Патологоанатома</h1>
+    
+    <label for="patientInput">Входные данные (OCR, заметки, макро, микро):</label>
+    <textarea id="patientInput" placeholder="Вставь сюда весь текст: эпикриз, данные вскрытия, размеры органов, гистологию..."></textarea>
+    
+    <button onclick="generate()" id="btn">🚀 Сгенерировать Протокол</button>
+    <div id="loading" class="loading">⏳ Думаю... Анализирую данные... Пишу протокол... (это займет около 15-30 сек)</div>
+    
+    <div id="result"></div>
+    <button onclick="copyToClipboard()" id="copyBtn" class="copy-btn">📋 Скопировать результат</button>
+</div>
+
+<script>
+    async function generate() {
+        const input = document.getElementById('patientInput').value;
+        const resultDiv = document.getElementById('result');
+        const btn = document.getElementById('btn');
+        const loading = document.getElementById('loading');
+        const copyBtn = document.getElementById('copyBtn');
+
+        if (!input.trim()) { alert("Пожалуйста, вставьте текст!"); return; }
+
+        // Интерфейс: загрузка
+        btn.disabled = true;
+        loading.style.display = 'block';
+        resultDiv.innerText = '';
+        copyBtn.style.display = 'none';
+
+        try {
+            // Обращаемся к твоему файлу generate-macro.js
+            const response = await fetch('/api/generate-macro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patientData: input })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                resultDiv.innerText = "❌ Ошибка: " + data.error;
+            } else {
+                resultDiv.innerText = data.result;
+                copyBtn.style.display = 'block'; // Показываем кнопку копирования
+            }
+        } catch (e) {
+            resultDiv.innerText = "❌ Ошибка сети: " + e.message;
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
+        }
+    }
+
+    function copyToClipboard() {
+        const text = document.getElementById('result').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Скопировано в буфер обмена!");
+        });
+    }
+</script>
+
+</body>
+</html>
