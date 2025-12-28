@@ -2,7 +2,7 @@
 import { SYSTEM_PROMPT } from './prompt_data.js';
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'edge', // Используем Edge для скорости
 };
 
 export default async function handler(req) {
@@ -12,16 +12,14 @@ export default async function handler(req) {
 
   try {
     const { patientData } = await req.json();
-    
-    // Получаем ключ из настроек Vercel
-    const apiKey = process.env.GOOGLE_API_KEY; 
+    const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Не настроен API ключ (GOOGLE_API_KEY)' }), { status: 500 });
+      return new Response(JSON.stringify({ error: 'Нет ключа API' }), { status: 500 });
     }
 
-    // Адрес API Gemini 1.5 Pro
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+    // ВАЖНОЕ ИЗМЕНЕНИЕ: используем gemini-1.5-flash (она быстрее)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
@@ -30,11 +28,11 @@ export default async function handler(req) {
       contents: [
         {
           role: "user",
-          parts: [{ text: `ВОТ ВХОДНЫЕ ДАННЫЕ (ЭПИКРИЗ, МАКРО, МИКРО):\n\n${patientData}\n\nСгенерируй протокол строго по инструкции.` }]
+          parts: [{ text: `ВХОДНЫЕ ДАННЫЕ:\n${patientData}\n\nСгенерируй протокол строго по инструкции.` }]
         }
       ],
       generationConfig: {
-        temperature: 0.2, // Строгость
+        temperature: 0.2,
       }
     };
 
@@ -44,17 +42,19 @@ export default async function handler(req) {
       body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error.message || 'Ошибка API Google');
+    // Проверяем, не вернул ли Google ошибку (например, 400 или 500)
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Google Error:", errorText);
+        throw new Error(`Google API Error: ${response.status} - ${errorText}`);
     }
 
-    // Достаем текст ответа
+    const data = await response.json();
+
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!resultText) {
-      throw new Error('Пустой ответ от Gemini. Возможно, сработал фильтр безопасности.');
+      throw new Error('Пустой ответ от модели.');
     }
 
     return new Response(JSON.stringify({ result: resultText }), {
