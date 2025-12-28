@@ -1,9 +1,8 @@
 // Файл: API/generate-macro.js
 export const config = {
-  runtime: 'edge', 
+  runtime: 'edge', // Edge функции имеют лимит времени, но они быстрее
 };
 
-// --- ТВОЙ ПРОТОКОЛ (ПРОМТ) ---
 const SYSTEM_PROMPT = `
 ТЫ — ВРАЧ-ПАТОЛОГОАНАТОМ ВЫСШЕЙ КАТЕГОРИИ.
 ТВОЯ ЗАДАЧА — ПРЕВРАТИТЬ СЫРОЙ МАССИВ ДАННЫХ В ПОЛНЫЙ ПРОТОКОЛ.
@@ -38,13 +37,11 @@ export default async function handler(req) {
 
   try {
     const { patientData } = await req.json();
-
-    // ТВОЙ КЛЮЧ (Работает!)
     const apiKey = "AIzaSyANwXRki98C7w5ZaV7CoDToEs2biUKK_zE"; 
 
-    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ GEMINI 2 FLASH
-    // Она есть в твоем списке моделей, и на неё должен быть лимит.
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // ИСПОЛЬЗУЕМ "LATEST" (ПОСЛЕДНЮЮ СТАБИЛЬНУЮ)
+    // Это самый безопасный вариант. Google сам решит, какую версию дать.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
@@ -68,7 +65,9 @@ export default async function handler(req) {
     });
 
     if (!response.ok) {
+        // Читаем ошибку как текст, чтобы не сломать JSON парсер на фронте
         const errorText = await response.text();
+        // Бросаем ошибку, которую увидим в консоли, а не "Unexpected token"
         throw new Error(`Google API Error (${response.status}): ${errorText}`);
     }
 
@@ -84,6 +83,10 @@ export default async function handler(req) {
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    // Возвращаем ошибку в JSON формате, чтобы сайт мог её показать
+    return new Response(JSON.stringify({ error: error.message }), { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' } 
+    });
   }
 }
