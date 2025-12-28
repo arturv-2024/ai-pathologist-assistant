@@ -39,12 +39,12 @@ export default async function handler(req) {
   try {
     const { patientData } = await req.json();
 
-    // ТВОЙ КЛЮЧ
+    // ТВОЙ КЛЮЧ (Работает!)
     const apiKey = "AIzaSyANwXRki98C7w5ZaV7CoDToEs2biUKK_zE"; 
 
-    // ИСПОЛЬЗУЕМ ЭКСПЕРИМЕНТАЛЬНУЮ ВЕРСИЮ (Она должна быть открыта)
-    // Из твоего списка: "gemini-2.0-flash-exp"
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ GEMINI 3 FLASH
+    // Она есть в твоем списке моделей, и на неё должен быть лимит.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
