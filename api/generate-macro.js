@@ -50,7 +50,7 @@ export default async function handler(req) {
 
   try {
     const { patientData } = await req.json();
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = "AIzaSyANwXRki98C7w5ZaV7CoDToEs2biUKK_zE";
 
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'Ключ API не найден' }), { status: 500 });
