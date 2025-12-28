@@ -21,7 +21,7 @@ export default async function handler(req) {
     // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ: gemini-1.5-flash-002
     // Она работает без ошибок 404. 
     // Если захочешь Gemini 3, поменяй эту строку на: "models/gemini-3-flash-preview"
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
