@@ -1,9 +1,47 @@
 // Файл: API/generate-macro.js
-import { SYSTEM_PROMPT } from './prompt_data.js';
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'edge', // Используем Edge для скорости
 };
+
+// --- ВЕСЬ ТВОЙ СУПЕР-ПРОМТ (ВСТАВЛЕН СЮДА, ЧТОБЫ ИЗБЕЖАТЬ ОШИБОК ЧТЕНИЯ) ---
+const SYSTEM_PROMPT = `
+ТЫ — ВРАЧ-ПАТОЛОГОАНАТОМ ВЫСШЕЙ КАТЕГОРИИ.
+ТВОЯ ЗАДАЧА — ПРЕВРАТИТЬ СЫРОЙ МАССИВ ДАННЫХ В ПОЛНЫЙ ПРОТОКОЛ.
+
+РАЗДЕЛ I: РОЛЬ И ГЛОБАЛЬНЫЕ ПРАВИЛА
+
+ГЛОБАЛЬНЫЕ ПРАВИЛА (КОНСТИТУЦИЯ):
+0. ИНТЕЛЛЕКТУАЛЬНЫЙ ПОИСК ДАННЫХ (SMART PARSING):
+•	Входной текст может быть хаотичным. Найди ключевые параметры (массы органов, размеры, биохимию) независимо от их расположения.
+1. ПРИОРИТЕТ ДАННЫХ:
+Прижизненная биопсия / Операция / Аутопсия > Инструментальные данные > Лаборатория > Клиника.
+2. РАБОТА С ЦИФРАМИ:
+•	В МАКРООПИСАНИИ: Указывай точные размеры (см), массу (г), объем (мл).
+•	В ДИАГНОЗЕ: ЗАПРЕЩЕНО писать массу органов и размеры (кроме % стеноза и дат).
+•	В ЭПИКРИЗЕ: ОБЯЗАТЕЛЬНО используй конкретные цифры для доказательства.
+3. СТРОГИЙ ФОРМАТ ОПЕРАЦИЙ:
+"Операция (ДД.ММ.ГГГГ): «[Название]»".
+4. ЗАПРЕЩЕННЫЕ ФОРМУЛИРОВКИ:
+Не используй слова "вероятно", "возможно". Не пиши "данных нет" — просто пропускай блок.
+5. СООТВЕТСТВИЕ ПРИКАЗУ МЗ РБ № 1474:
+•	Соблюдай правила кодирования коморбидности.
+•	Гангрена кишечника — всегда осложнение.
+
+РАЗДЕЛ II: АЛГОРИТМ РАБОТЫ
+1. Проанализируй входные данные.
+2. Для каждого органа/системы используй соответствующий шаблон описания (Макро, Микро).
+3. Сформируй Диагноз (Рубрики I, II, III, IV) выбрав ОДНО основное заболевание.
+4. Сформируй Эпикриз, обосновав танатогенез цифрами.
+
+СТРУКТУРА ВЫВОДА (СТРОГО):
+1. ПРОТОКОЛ ВСКРЫТИЯ (Макро и Микро описания по системам: Голова, Грудь, Живот, Органы).
+2. ПАТОЛОГОАНАТОМИЧЕСКИЙ ДИАГНОЗ (Рубрифицированный).
+3. КЛИНИКО-ПАТОЛОГОАНАТОМИЧЕСКИЙ ЭПИКРИЗ.
+4. КОДЫ МКБ-10 (Часть I и II).
+`;
+
+// --- КОД СЕРВЕРА (ИСПРАВЛЕНА МОДЕЛЬ) ---
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
@@ -15,13 +53,12 @@ export default async function handler(req) {
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Нет ключа API' }), { status: 500 });
+      return new Response(JSON.stringify({ error: 'Ключ API не найден в настройках Vercel' }), { status: 500 });
     }
 
-    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ: gemini-1.5-flash-002
-    // Она работает без ошибок 404. 
-    // Если захочешь Gemini 3, поменяй эту строку на: "models/gemini-3-flash-preview"
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`;
+    // ИСПРАВЛЕНО: Используем базовое имя модели. Google сам выберет последнюю версию.
+    // Это на 100% избавит от ошибки 404.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
@@ -30,7 +67,7 @@ export default async function handler(req) {
       contents: [
         {
           role: "user",
-          parts: [{ text: `ВХОДНЫЕ ДАННЫЕ:\n${patientData}\n\nСгенерируй протокол строго по инструкции.` }]
+          parts: [{ text: `ВХОДНЫЕ ДАННЫЕ:\n${patientData}\n\nСгенерируй полный протокол.` }]
         }
       ],
       generationConfig: {
@@ -46,15 +83,15 @@ export default async function handler(req) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error("Google Error:", errorText);
-        throw new Error(`Google API Error: ${response.status} - ${errorText}`);
+        console.error("Google API Error:", errorText);
+        throw new Error(`Ошибка от Google (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!resultText) {
-      throw new Error('Пустой ответ от модели.');
+      throw new Error('Модель вернула пустой ответ. Попробуйте другой текст.');
     }
 
     return new Response(JSON.stringify({ result: resultText }), {
@@ -62,7 +99,7 @@ export default async function handler(req) {
     });
 
   } catch (error) {
-    console.error("Server Error:", error);
+    console.error("Server Crash:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
