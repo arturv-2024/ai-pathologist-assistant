@@ -41,7 +41,7 @@ const SYSTEM_PROMPT = `
 4. КОДЫ МКБ-10 (Часть I и II).
 `;
 
-// --- КОД СЕРВЕРА (ЭКСПЕРИМЕНТАЛЬНАЯ ВЕРСИЯ) ---
+// --- КОД СЕРВЕРА ---
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
@@ -56,9 +56,8 @@ export default async function handler(req) {
       return new Response(JSON.stringify({ error: 'Ключ API не найден' }), { status: 500 });
     }
 
-    // ПРОБУЕМ ВЕРСИЮ GEMINI 3 FLASH, КАК ТЫ ПРОСИЛ
-    // Если она существует для твоего ключа — это будет ракета! 🚀
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${apiKey}`;
+    // ИСПОЛЬЗУЕМ ПРОВЕРЕННУЮ РАБОЧУЮ МОДЕЛЬ
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
