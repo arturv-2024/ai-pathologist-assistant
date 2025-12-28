@@ -2,7 +2,7 @@
 import { SYSTEM_PROMPT } from './prompt_data.js';
 
 export const config = {
-  runtime: 'edge', // Используем Edge для скорости
+  runtime: 'edge',
 };
 
 export default async function handler(req) {
@@ -18,8 +18,10 @@ export default async function handler(req) {
       return new Response(JSON.stringify({ error: 'Нет ключа API' }), { status: 500 });
     }
 
-    // ВАЖНОЕ ИЗМЕНЕНИЕ: используем gemini-1.5-flash (она быстрее)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ: gemini-1.5-flash-002
+    // Она работает без ошибок 404. 
+    // Если захочешь Gemini 3, поменяй эту строку на: "models/gemini-3-flash-preview"
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
@@ -42,7 +44,6 @@ export default async function handler(req) {
       body: JSON.stringify(payload)
     });
 
-    // Проверяем, не вернул ли Google ошибку (например, 400 или 500)
     if (!response.ok) {
         const errorText = await response.text();
         console.error("Google Error:", errorText);
@@ -50,7 +51,6 @@ export default async function handler(req) {
     }
 
     const data = await response.json();
-
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!resultText) {
