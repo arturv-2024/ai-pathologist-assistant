@@ -42,7 +42,7 @@ export default async function handler(req) {
     // ТВОЙ КЛЮЧ (Работает!)
     const apiKey = "AIzaSyANwXRki98C7w5ZaV7CoDToEs2biUKK_zE"; 
 
-    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ GEMINI 3 FLASH
+    // ИСПОЛЬЗУЕМ СТАБИЛЬНУЮ ВЕРСИЮ GEMINI 2 FLASH
     // Она есть в твоем списке моделей, и на неё должен быть лимит.
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
