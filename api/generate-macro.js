@@ -1,7 +1,7 @@
 // Файл: API/generate-macro.js
 
 export const config = {
-  runtime: 'edge', // Edge для долгого ожидания ответа
+  runtime: 'edge', // Используем Edge
 };
 
 // --- ТВОЙ ПОЛНЫЙ ПРОМТ ---
@@ -56,9 +56,9 @@ export default async function handler(req) {
       return new Response(JSON.stringify({ error: 'Ключ API не найден' }), { status: 500 });
     }
 
-    // ПЕРЕКЛЮЧАЕМСЯ НА GEMINI 1.5 PRO
-    // Это самая мощная модель. Она должна быть доступна.
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+    // ВОЗВРАЩАЕМ GEMINI 1.5 FLASH
+    // С новым ключом она заработает моментально.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
