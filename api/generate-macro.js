@@ -4,7 +4,7 @@ export const config = {
   runtime: 'edge', // Используем Edge для скорости
 };
 
-// --- ВЕСЬ ТВОЙ СУПЕР-ПРОМТ (ВСТАВЛЕН СЮДА, ЧТОБЫ ИЗБЕЖАТЬ ОШИБОК ЧТЕНИЯ) ---
+// --- ТВОЙ ПОЛНЫЙ ПРОМТ ---
 const SYSTEM_PROMPT = `
 ТЫ — ВРАЧ-ПАТОЛОГОАНАТОМ ВЫСШЕЙ КАТЕГОРИИ.
 ТВОЯ ЗАДАЧА — ПРЕВРАТИТЬ СЫРОЙ МАССИВ ДАННЫХ В ПОЛНЫЙ ПРОТОКОЛ.
@@ -41,7 +41,7 @@ const SYSTEM_PROMPT = `
 4. КОДЫ МКБ-10 (Часть I и II).
 `;
 
-// --- КОД СЕРВЕРА (ИСПРАВЛЕНА МОДЕЛЬ) ---
+// --- КОД СЕРВЕРА (ЭКСПЕРИМЕНТАЛЬНАЯ ВЕРСИЯ) ---
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
@@ -53,12 +53,12 @@ export default async function handler(req) {
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Ключ API не найден в настройках Vercel' }), { status: 500 });
+      return new Response(JSON.stringify({ error: 'Ключ API не найден' }), { status: 500 });
     }
 
-    // ИСПРАВЛЕНО: Используем базовое имя модели. Google сам выберет последнюю версию.
-    // Это на 100% избавит от ошибки 404.
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // ПРОБУЕМ ВЕРСИЮ GEMINI 3 FLASH, КАК ТЫ ПРОСИЛ
+    // Если она существует для твоего ключа — это будет ракета! 🚀
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
@@ -83,15 +83,14 @@ export default async function handler(req) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error("Google API Error:", errorText);
-        throw new Error(`Ошибка от Google (${response.status}): ${errorText}`);
+        throw new Error(`Google API Error (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!resultText) {
-      throw new Error('Модель вернула пустой ответ. Попробуйте другой текст.');
+      throw new Error('Модель вернула пустой ответ.');
     }
 
     return new Response(JSON.stringify({ result: resultText }), {
@@ -99,7 +98,6 @@ export default async function handler(req) {
     });
 
   } catch (error) {
-    console.error("Server Crash:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
