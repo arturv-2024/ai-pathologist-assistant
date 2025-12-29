@@ -197,12 +197,12 @@ export default async function handler(req) {
   try {
     const { patientData } = await req.json();
 
-    // 1. БЕЗОПАСНЫЙ КЛЮЧ
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) throw new Error("API Key не найден");
 
-    // 2. ИСПОЛЬЗУЕМ GEMINI 1.5 FLASH (Она потянет этот объем)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // ИСПОЛЬЗУЕМ "LATEST" - ЭТО УНИВЕРСАЛЬНЫЙ АДРЕС
+    // Google сам выберет лучшую Flash-модель (2.0 или 2.5), доступную твоему ключу.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
     const payload = {
       system_instruction: {
@@ -227,7 +227,7 @@ export default async function handler(req) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Google API Error: ${errorText}`);
+        throw new Error(`Google API Error (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
